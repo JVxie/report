@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jvxie.report.mappers.AreaMapMapper">
+  <resultMap id="BaseResultMap" type="com.jvxie.report.models.AreaMap">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="pid" jdbcType="INTEGER" property="pid" />
+    <result column="deep" jdbcType="INTEGER" property="deep" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="pinyin_prefix" jdbcType="VARCHAR" property="pinyinPrefix" />
+    <result column="pinyin" jdbcType="VARCHAR" property="pinyin" />
+    <result column="ext_id" jdbcType="VARCHAR" property="extId" />
+    <result column="ext_name" jdbcType="VARCHAR" property="extName" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+    <result column="deleted_at" jdbcType="TIMESTAMP" property="deletedAt" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, pid, deep, `name`, pinyin_prefix, pinyin, ext_id, ext_name, created_at, updated_at, 
+    deleted_at
+  </sql>
+  <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from area_map
+    where id = #{id,jdbcType=INTEGER}
+    and deleted_at is null
+  </select>
+  <select id="selectByPid" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from area_map
+    where pid = #{pid,jdbcType=INTEGER}
+    and deleted_at is null
+  </select>
+  <update id="deleteById" parameterType="java.lang.Integer">
+    update area_map
+    set deleted_at = now()
+    where id = #{id,jdbcType=INTEGER}
+    and deleted_at is null
+  </update>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.jvxie.report.models.AreaMap" useGeneratedKeys="true">
+    insert into area_map
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="pid != null">
+        pid,
+      </if>
+      <if test="deep != null">
+        deep,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="pinyinPrefix != null">
+        pinyin_prefix,
+      </if>
+      <if test="pinyin != null">
+        pinyin,
+      </if>
+      <if test="extId != null">
+        ext_id,
+      </if>
+      <if test="extName != null">
+        ext_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="pid != null">
+        #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="deep != null">
+        #{deep,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="pinyinPrefix != null">
+        #{pinyinPrefix,jdbcType=VARCHAR},
+      </if>
+      <if test="pinyin != null">
+        #{pinyin,jdbcType=VARCHAR},
+      </if>
+      <if test="extId != null">
+        #{extId,jdbcType=VARCHAR},
+      </if>
+      <if test="extName != null">
+        #{extName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByIdSelective" parameterType="com.jvxie.report.models.AreaMap">
+    update area_map
+    <set>
+      <if test="pid != null">
+        pid = #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="deep != null">
+        deep = #{deep,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="pinyinPrefix != null">
+        pinyin_prefix = #{pinyinPrefix,jdbcType=VARCHAR},
+      </if>
+      <if test="pinyin != null">
+        pinyin = #{pinyin,jdbcType=VARCHAR},
+      </if>
+      <if test="extId != null">
+        ext_id = #{extId,jdbcType=VARCHAR},
+      </if>
+      <if test="extName != null">
+        ext_name = #{extName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+    and deleted_at is null
+  </update>
+</mapper>

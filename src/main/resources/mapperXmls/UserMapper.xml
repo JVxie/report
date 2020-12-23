@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jvxie.report.mappers.UserMapper">
+  <resultMap id="BaseResultMap" type="com.jvxie.report.models.User">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+    <result column="user_role" jdbcType="TINYINT" property="userRole" />
+    <result column="user_email" jdbcType="VARCHAR" property="userEmail" />
+    <result column="user_phone" jdbcType="VARCHAR" property="userPhone" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+    <result column="deleted_at" jdbcType="TIMESTAMP" property="deletedAt" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    `user`.id,
+    `user`.username,
+    `user`.`password`,
+    `user`.nickname,
+    `user`.user_role,
+    `user`.user_email,
+    `user`.user_phone,
+    `user`.created_at,
+    `user`.updated_at,
+    `user`.deleted_at
+  </sql>
+  <update id="deleteById">
+    update `user`
+    set deleted_at = now()
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByUsername" resultType="com.jvxie.report.models.User">
+    select
+    <include refid="Base_Column_List" />
+    from `user`
+    where username = #{username,jdbcType=VARCHAR}
+    and deleted_at is null
+  </select>
+  <select id="selectById" resultType="com.jvxie.report.models.User">
+    select
+    <include refid="Base_Column_List" />
+    from `user`
+    where id = #{id,jdbcType=INTEGER}
+    and deleted_at is null
+  </select>
+  <select id="selectList" parameterType="com.jvxie.report.forms.user.UserListForm" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from `user`
+    <if test="classIdSet != null and classIdSet.size() > 0">
+      join `student` on `student`.`user_id` = `user`.`id` and `student`.`deleted_at` is null
+    </if>
+    where `user`.deleted_at is null
+    <if test="idBefore != null and idAfter != null">
+      and id between #{idBefore,jdbcType=INTEGER} and #{idAfter,jdbcType=INTEGER}
+    </if>
+    <if test="username != null and username != ''">
+      and username like concat('%', #{username,jdbcType=VARCHAR}, '%')
+    </if>
+    <if test="nickname != null and nickname != ''">
+      and nickname like concat('%', #{nickname,jdbcType=VARCHAR}, '%')
+    </if>
+    <if test="userRole != null">
+      and user_role = #{userRole,jdbcType=TINYINT}
+    </if>
+    <if test="userEmail != null and userEmail != ''">
+      and user_email like concat('%', #{userEmail,jdbcType=VARCHAR}, '%')
+    </if>
+    <if test="userPhone != null and userPhone != ''">
+      and user_phone like concat('%', #{userPhone,jdbcType=VARCHAR}, '%')
+    </if>
+    <if test="createdAtBefore != null and createdAtAfter != null">
+      and created_at between #{createdAtBefore,jdbcType=TIMESTAMP} and #{createdAtAfter,jdbcType=TIMESTAMP}
+    </if>
+    <if test="updatedAtBefore != null and updatedAtAfter != null">
+      and updated_at between #{updatedAtBefore,jdbcType=TIMESTAMP} and #{updatedAtAfter,jdbcType=TIMESTAMP}
+    </if>
+    <if test="classIdSet != null and classIdSet.size() > 0">
+      and`student`.`class_id` in
+      <foreach collection="classIdSet" item="item" index="index" open="(" separator="," close=")">
+        #{item}
+      </foreach>
+    </if>
+  </select>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.jvxie.report.models.User" useGeneratedKeys="true">
+    insert into `user`
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="username != null">
+        `user`.username,
+      </if>
+      <if test="password != null">
+        `user`.`password`,
+      </if>
+      <if test="nickname != null">
+        `user`.nickname,
+      </if>
+      <if test="userRole != null">
+        `user`.user_role,
+      </if>
+      <if test="userEmail != null">
+        `user`.user_email,
+      </if>
+      <if test="userPhone != null">
+        `user`.user_phone,
+      </if>
+      <if test="createdAt != null">
+        `user`.created_at,
+      </if>
+      <if test="updatedAt != null">
+        `user`.updated_at,
+      </if>
+      <if test="deletedAt != null">
+        `user`.deleted_at,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="nickname != null">
+        #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="userRole != null">
+        #{userRole,jdbcType=TINYINT},
+      </if>
+      <if test="userEmail != null">
+        #{userEmail,jdbcType=VARCHAR},
+      </if>
+      <if test="userPhone != null">
+        #{userPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null">
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null">
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deletedAt != null">
+        #{deletedAt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByIdSelective" parameterType="com.jvxie.report.models.User">
+    update `user`
+    <set>
+      <if test="username != null">
+        `user`.username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        `user`.`password` = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="nickname != null">
+        `user`.nickname = #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="userRole != null">
+        `user`.user_role = #{userRole,jdbcType=TINYINT},
+      </if>
+      <if test="userEmail != null">
+        `user`.user_email = #{userEmail,jdbcType=VARCHAR},
+      </if>
+      <if test="userPhone != null">
+        `user`.user_phone = #{userPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null">
+        `user`.created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null">
+        `user`.updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deletedAt != null">
+        `user`.deleted_at = #{deletedAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where `user`.id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

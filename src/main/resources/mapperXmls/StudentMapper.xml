@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jvxie.report.mappers.StudentMapper">
+  <resultMap id="BaseResultMap" type="com.jvxie.report.models.Student">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="number" jdbcType="VARCHAR" property="number" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="sex" jdbcType="TINYINT" property="sex" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="class_id" jdbcType="INTEGER" property="classId" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="identity_number" jdbcType="VARCHAR" property="identityNumber" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+    <result column="deleted_at" jdbcType="TIMESTAMP" property="deletedAt" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, `number`, `name`, sex, user_id, class_id, phone, identity_number, created_at, 
+    updated_at, deleted_at
+  </sql>
+  <sql id="Base_Column_List_With_Join">
+    `student`.id, `student`.`number`, `student`.`name`, `student`.sex, `student`.user_id, `student`.class_id, `student`.phone, `student`.identity_number, `student`.created_at,
+    `student`.updated_at, `student`.deleted_at
+  </sql>
+  <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from student
+    where id = #{id,jdbcType=INTEGER}
+    and deleted_at is null
+  </select>
+  <select id="selectByNumber" resultType="com.jvxie.report.models.Student">
+    select
+    <include refid="Base_Column_List" />
+    from student
+    where `number` = #{number,jdbcType=VARCHAR}
+    and deleted_at is null
+  </select>
+  <select id="selectList" parameterType="com.jvxie.report.forms.student.StudentListForm" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List_With_Join" />
+    from student
+    <if test="isRegistered != null">
+      <if test="isRegistered == 0">
+        left join `user` on `user`.`id` = `student`.`user_id`
+      </if>
+      <if test="isRegistered == 1">
+        join `user` on `user`.`id` = `student`.`user_id` and `user`.`deleted_at` is null
+      </if>
+    </if>
+    where `student`.deleted_at is null
+    <if test="idBefore != null and idAfter != null">
+      and `student`.id between #{idBefore,jdbcType=INTEGER} and #{idAfter,jdbcType=INTEGER}
+    </if>
+    <if test="number != null">
+      and `student`.`number` like concat('%', #{number,jdbcType=VARCHAR}, '%')
+    </if>
+    <if test="name != null">
+      and `student`.`name` like concat('%', #{name,jdbcType=VARCHAR}, '%')
+    </if>
+    <if test="sex != null">
+      and `student`.sex = #{sex,jdbcType=TINYINT}
+    </if>
+    <if test="userId != null">
+      and `student`.user_id = #{userId,jdbcType=INTEGER}
+    </if>
+    <if test="classId != null">
+      and `student`.class_id = #{classId,jdbcType=INTEGER}
+    </if>
+    <if test="classIdSet != null and classIdSet.size() > 0">
+      and `student`.class_id in
+      <foreach collection="classIdSet" item="item" index="index" open="(" separator="," close=")">
+        #{item}
+      </foreach>
+    </if>
+    <if test="phone != null">
+      and `student`.phone like concat('%', #{phone,jdbcType=VARCHAR}, '%')
+    </if>
+    <if test="identityNumber != null">
+      and `student`.identity_number like concat('%', #{identityNumber,jdbcType=VARCHAR}, '%')
+    </if>
+    <if test="createdAtBefore != null and createdAtAfter != null">
+      and `student`.created_at between #{createdAtBefore,jdbcType=TIMESTAMP} and #{createdAtAfter,jdbcType=TIMESTAMP}
+    </if>
+    <if test="updatedAtBefore != null and updatedAtAfter != null">
+      and `student`.updated_at between #{updatedAtBefore,jdbcType=TIMESTAMP} and #{updatedAtAfter,jdbcType=TIMESTAMP}
+    </if>
+    <if test="isRegistered != null and isRegistered == 0">
+      and (`user`.`id` is null or `user`.`deleted_at` is not null)
+    </if>
+  </select>
+  <select id="selectByUserId" resultType="com.jvxie.report.models.Student">
+    select
+    <include refid="Base_Column_List" />
+    from student
+    where user_id = #{userId,jdbcType=INTEGER}
+    and deleted_at is null
+  </select>
+  <select id="selectByIdSetNotRegister" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from `student`
+    left join `user` on `user`.`id` = `student`.`user_id`
+    where `user`.`id` is null or `user`.`deleted_at` is not null
+  </select>
+  <select id="selectReport" parameterType="com.jvxie.report.forms.report.ReportListForm" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List_With_Join" />
+    from `student`
+    left join `report` on `report`.`user_id` = `student`.`user_id` and `report`.`deleted_at` is null
+    where `student`.`deleted_at` is null
+    <if test="userRole != null">
+      and `report`.`user_role` = #{userRole,jdbcType=TINYINT}
+    </if>
+    <if test="number != null">
+      and `student`.`number` like concat('%', #{number,jdbcType=VARCHAR}, '%')
+    </if>
+    <if test="name != null">
+      and `student`.`name` like concat('%', #{name,jdbcType=VARCHAR}, '%')
+    </if>
+    <if test="sex != null">
+      and `student`.`sex` = #{sex,jdbcType=TINYINT}
+    </if>
+    <if test="isReportToday != null">
+      <if test="isReportToday == 0">
+        and (to_days( report.created_at ) != to_days( now() ) OR report.created_at is null)
+      </if>
+      <if test="isReportToday == 1">
+        and to_days( report.created_at ) = to_days( now() )
+      </if>
+    </if>
+    <if test="classId != null">
+      and `student`.`class_id` = #{classId,jdbcType=INTEGER}
+    </if>
+    <if test="classIdSet != null and classIdSet.size() > 0">
+      and `student`.`class_id` in
+      <foreach collection="classIdSet" item="item" index="index" open="(" separator="," close=")">
+        #{item}
+      </foreach>
+    </if>
+    <if test="isAbnormal != null">
+      and to_days( report.created_at ) = to_days( now() )
+      <if test="isAbnormal == 1">
+        and (
+            `report`.`temperature` &lt; 36
+            or `report`.`temperature` &gt; 37
+            or `report`.`is_fever_cough` != '0'
+            or `report`.`is_covid` != 0
+            or `report`.`is_infection` != 0
+            or `report`.`area_level` != 0
+            or `report`.`is_health_code` != 1
+            or `report`.`is_back_foreign` != 0
+            or `is_touch_foreigner` != 0
+        )
+      </if>
+      <if test="isAbnormal == 0">
+        and (
+            `report`.`temperature` between 36 and 37
+            and `report`.`is_fever_cough` = '0'
+            and `report`.`is_covid` = 0
+            and `report`.`is_infection` = 0
+            and `report`.`area_level` = 0
+            and `report`.`is_health_code` = 1
+            and `report`.`is_back_foreign` = 0
+            and `is_touch_foreigner` = 0
+        )
+      </if>
+    </if>
+    <if test="nowProvinceId != null">
+      and `report`.`now_province_id` = #{nowProvinceId,jdbcType=INTEGER}
+    </if>
+    <if test="nowCityId != null">
+      and `report`.`now_city_id` = #{nowCityId,jdbcType=INTEGER}
+    </if>
+    <if test="nowAreaId != null">
+      and `report`.`now_area_id` = #{nowAreaId,jdbcType=INTEGER}
+    </if>
+    <if test="homeProvinceId != null">
+      and `report`.`home_province_id` = #{homeProvinceId,jdbcType=INTEGER}
+    </if>
+    <if test="homeCityId != null">
+      and `report`.`home_city_id` = #{homeCityId,jdbcType=INTEGER}
+    </if>
+    <if test="homeAreaId != null">
+      and `report`.`home_area_id` = #{homeAreaId,jdbcType=INTEGER}
+    </if>
+    group by `student`.`id`
+  </select>
+  <update id="deleteById" parameterType="java.lang.Integer">
+    update student
+    set deleted_at = now()
+    where id = #{id,jdbcType=INTEGER}
+    and deleted_at is null
+  </update>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.jvxie.report.models.Student" useGeneratedKeys="true">
+    insert into student
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="number != null">
+        `number`,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="sex != null">
+        sex,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="classId != null">
+        class_id,
+      </if>
+      <if test="phone != null">
+        phone,
+      </if>
+      <if test="identityNumber != null">
+        identity_number,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="number != null">
+        #{number,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        #{sex,jdbcType=TINYINT},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="classId != null">
+        #{classId,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="identityNumber != null">
+        #{identityNumber,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByIdSelective" parameterType="com.jvxie.report.models.Student">
+    update student
+    <set>
+      <if test="number != null">
+        `number` = #{number,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        sex = #{sex,jdbcType=TINYINT},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="classId != null">
+        class_id = #{classId,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null">
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="identityNumber != null">
+        identity_number = #{identityNumber,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+    and deleted_at is null
+  </update>
+</mapper>

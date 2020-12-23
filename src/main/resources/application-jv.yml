@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/student_system
+    username: root
+    password: 112233789xX@
+    hikari:
+      minimum-idle: 3
+      maximum-pool-size: 10
+      max-lifetime: 30000
+      connection-test-query: SELECT 1
+  jackson: # 配置jackson 自动转下划线
+#    default-property-inclusion: NON_NULL # 过滤null属性
+    property-naming-strategy: SNAKE_CASE # 驼峰转为下划线
+    date-format: yyyy-MM-dd HH:mm:ss     # 日期格式化
+    time-zone: GMT+8                     # 时区
+  redis:
+    host: 127.0.0.1
+    port: 6379
+
+server:
+  port: 8081
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 打印日志
+  mapper-locations: classpath:mapperXmls/*.xml
+
+logging:
+  level:
+    root: info
+
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true

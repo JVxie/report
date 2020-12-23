@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jvxie.report.mappers.MajorMapper">
+  <resultMap id="BaseResultMap" type="com.jvxie.report.models.Major">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="college_id" jdbcType="INTEGER" property="collegeId" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+    <result column="deleted_at" jdbcType="TIMESTAMP" property="deletedAt" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, `name`, college_id, category, created_at, updated_at, deleted_at
+  </sql>
+  <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from major
+    where id = #{id,jdbcType=INTEGER}
+    and deleted_at is null
+  </select>
+  <select id="selectList" parameterType="com.jvxie.report.forms.major.MajorListForm" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from major
+    where deleted_at is null
+    <if test="idBefore != null and idAfter != null">
+      and id between #{idBefore,jdbcType=INTEGER} and #{idAfter,jdbcType=INTEGER}
+    </if>
+    <if test="name != null">
+      and `name` like  concat('%', #{name,jdbcType=VARCHAR}, '%')
+    </if>
+    <if test="collegeId != null">
+      and college_id = #{collegeId,jdbcType=INTEGER}
+    </if>
+    <if test="category != null">
+      and category = #{category,jdbcType=TINYINT}
+    </if>
+    <if test="createdAtBefore != null and createdAtAfter != null">
+      and created_at between #{createdAtBefore,jdbcType=TIMESTAMP} and #{createdAtAfter,jdbcType=TIMESTAMP}
+    </if>
+    <if test="updatedAtBefore != null and updatedAtAfter != null">
+      and updated_at between #{updatedAtBefore,jdbcType=TIMESTAMP} and #{updatedAtAfter,jdbcType=TIMESTAMP}
+    </if>
+  </select>
+  <delete id="deleteById" parameterType="java.lang.Integer">
+    update major
+    set deleted_at = now()
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.jvxie.report.models.Major" useGeneratedKeys="true">
+    insert into major
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="collegeId != null">
+        college_id,
+      </if>
+      <if test="category != null">
+        category,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="collegeId != null">
+        #{collegeId,jdbcType=INTEGER},
+      </if>
+      <if test="category != null">
+        #{category,jdbcType=TINYINT}
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByIdSelective" parameterType="com.jvxie.report.models.Major">
+    update major
+    <set>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="collegeId != null">
+        college_id = #{collegeId,jdbcType=INTEGER},
+      </if>
+      <if test="category != null">
+        category = #{category,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+    and deleted_at is null
+  </update>
+</mapper>

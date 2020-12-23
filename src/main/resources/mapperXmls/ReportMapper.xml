@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jvxie.report.mappers.ReportMapper">
+  <resultMap id="BaseResultMap" type="com.jvxie.report.models.Report">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="user_role" jdbcType="TINYINT" property="userRole" />
+    <result column="number" jdbcType="VARCHAR" property="number" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="sex" jdbcType="TINYINT" property="sex" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="temperature" jdbcType="DECIMAL" property="temperature" />
+    <result column="now_province_id" jdbcType="INTEGER" property="nowProvinceId" />
+    <result column="now_city_id" jdbcType="INTEGER" property="nowCityId" />
+    <result column="now_area_id" jdbcType="INTEGER" property="nowAreaId" />
+    <result column="now_address" jdbcType="VARCHAR" property="nowAddress" />
+    <result column="home_province_id" jdbcType="INTEGER" property="homeProvinceId" />
+    <result column="home_city_id" jdbcType="INTEGER" property="homeCityId" />
+    <result column="home_area_id" jdbcType="INTEGER" property="homeAreaId" />
+    <result column="home_address" jdbcType="VARCHAR" property="homeAddress" />
+    <result column="is_fever_cough" jdbcType="VARCHAR" property="isFeverCough" />
+    <result column="is_covid" jdbcType="TINYINT" property="isCovid" />
+    <result column="is_infection" jdbcType="TINYINT" property="isInfection" />
+    <result column="area_level" jdbcType="TINYINT" property="areaLevel" />
+    <result column="is_health_code" jdbcType="TINYINT" property="isHealthCode" />
+    <result column="is_back_foreign" jdbcType="TINYINT" property="isBackForeign" />
+    <result column="is_touch_foreigner" jdbcType="TINYINT" property="isTouchForeigner" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+    <result column="deleted_at" jdbcType="TIMESTAMP" property="deletedAt" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, user_role, `number`, `name`, sex, phone, temperature, now_province_id, 
+    now_city_id, now_area_id, now_address, home_province_id, home_city_id, home_area_id, 
+    home_address, is_fever_cough, is_covid, is_infection, area_level, is_health_code, 
+    is_back_foreign, is_touch_foreigner, description, created_at, updated_at, deleted_at
+  </sql>
+  <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from report
+    where id = #{id,jdbcType=INTEGER}
+    and deleted_at is null
+  </select>
+  <select id="selectByNumberToday" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from report
+    where `number` = #{number,jdbcType=VARCHAR}
+    and to_days(created_at) = to_days(now())
+    and deleted_at is null
+  </select>
+  <select id="selectByNumberRecent" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from report
+    where `number` = #{number,jdbcType=VARCHAR}
+    and deleted_at is null
+    order by id desc
+    limit 1
+  </select>
+  <update id="deleteById" parameterType="java.lang.Integer">
+    update report
+    set deleted_at = now()
+    where id = #{id,jdbcType=INTEGER}
+    and deleted_at is null
+  </update>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.jvxie.report.models.Report" useGeneratedKeys="true">
+    insert into report
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="userRole != null">
+        user_role,
+      </if>
+      <if test="number != null">
+        `number`,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="sex != null">
+        sex,
+      </if>
+      <if test="phone != null">
+        phone,
+      </if>
+      <if test="temperature != null">
+        temperature,
+      </if>
+      <if test="nowProvinceId != null">
+        now_province_id,
+      </if>
+      <if test="nowCityId != null">
+        now_city_id,
+      </if>
+      <if test="nowAreaId != null">
+        now_area_id,
+      </if>
+      <if test="nowAddress != null">
+        now_address,
+      </if>
+      <if test="homeProvinceId != null">
+        home_province_id,
+      </if>
+      <if test="homeCityId != null">
+        home_city_id,
+      </if>
+      <if test="homeAreaId != null">
+        home_area_id,
+      </if>
+      <if test="homeAddress != null">
+        home_address,
+      </if>
+      <if test="isFeverCough != null">
+        is_fever_cough,
+      </if>
+      <if test="isCovid != null">
+        is_covid,
+      </if>
+      <if test="isInfection != null">
+        is_infection,
+      </if>
+      <if test="areaLevel != null">
+        area_level,
+      </if>
+      <if test="isHealthCode != null">
+        is_health_code,
+      </if>
+      <if test="isBackForeign != null">
+        is_back_foreign,
+      </if>
+      <if test="isTouchForeigner != null">
+        is_touch_foreigner,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="userRole != null">
+        #{userRole,jdbcType=TINYINT},
+      </if>
+      <if test="number != null">
+        #{number,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        #{sex,jdbcType=TINYINT},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="temperature != null">
+        #{temperature,jdbcType=DECIMAL},
+      </if>
+      <if test="nowProvinceId != null">
+        #{nowProvinceId,jdbcType=INTEGER},
+      </if>
+      <if test="nowCityId != null">
+        #{nowCityId,jdbcType=INTEGER},
+      </if>
+      <if test="nowAreaId != null">
+        #{nowAreaId,jdbcType=INTEGER},
+      </if>
+      <if test="nowAddress != null">
+        #{nowAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="homeProvinceId != null">
+        #{homeProvinceId,jdbcType=INTEGER},
+      </if>
+      <if test="homeCityId != null">
+        #{homeCityId,jdbcType=INTEGER},
+      </if>
+      <if test="homeAreaId != null">
+        #{homeAreaId,jdbcType=INTEGER},
+      </if>
+      <if test="homeAddress != null">
+        #{homeAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="isFeverCough != null">
+        #{isFeverCough,jdbcType=VARCHAR},
+      </if>
+      <if test="isCovid != null">
+        #{isCovid,jdbcType=TINYINT},
+      </if>
+      <if test="isInfection != null">
+        #{isInfection,jdbcType=TINYINT},
+      </if>
+      <if test="areaLevel != null">
+        #{areaLevel,jdbcType=TINYINT},
+      </if>
+      <if test="isHealthCode != null">
+        #{isHealthCode,jdbcType=TINYINT},
+      </if>
+      <if test="isBackForeign != null">
+        #{isBackForeign,jdbcType=TINYINT},
+      </if>
+      <if test="isTouchForeigner != null">
+        #{isTouchForeigner,jdbcType=TINYINT},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>
